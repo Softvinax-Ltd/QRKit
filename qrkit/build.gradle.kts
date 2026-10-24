@@ -49,7 +49,6 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.kotlin.testJunit)
             implementation(libs.junit)
-            implementation(libs.zxing.core)
         }
     }
 }

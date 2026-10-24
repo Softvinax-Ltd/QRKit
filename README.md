@@ -250,9 +250,9 @@ running while pausing decoding, or `showOverlay = false` to hide the decorative 
 - iOS tests: `./gradlew :qrkit:iosSimulatorArm64Test`
 
 The test suite includes round-trip tests across versions 1–40, every error correction level and
-mask pattern, rotation/scale/quiet-zone variations, Reed–Solomon correction tests, and a
-cross-validation suite that verifies the generated symbols with ZXing. ZXing is a test-only
-dependency; the library itself has no third-party runtime dependency beyond Compose.
+mask pattern, rotation/scale/quiet-zone variations, Reed–Solomon correction tests, and checks
+against the ISO/IEC 18004 version, alignment and block tables. The library has no third-party
+runtime dependency beyond Compose.
 
 ## License
 
