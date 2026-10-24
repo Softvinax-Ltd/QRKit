@@ -20,11 +20,11 @@ dependencies {
 }
 
 android {
-    namespace = "com.mahbub.qrcodegeneratorandscanner"
+    namespace = "ltd.softvinax.qrkit.app"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.mahbub.qrcodegeneratorandscanner"
+        applicationId = "ltd.softvinax.qrkit.app"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1

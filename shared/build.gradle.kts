@@ -15,12 +15,12 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "Shared"
             isStatic = true
-            binaryOption("bundleId", "com.mahbub.qrcodegeneratorandscanner.shared")
+            binaryOption("bundleId", "ltd.softvinax.qrkit.app.shared")
         }
     }
     
     android {
-       namespace = "com.mahbub.qrcodegeneratorandscanner.shared"
+       namespace = "ltd.softvinax.qrkit.app.shared"
        compileSdk = libs.versions.android.compileSdk.get().toInt()
        minSdk = libs.versions.android.minSdk.get().toInt()
     
