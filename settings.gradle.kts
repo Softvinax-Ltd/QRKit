@@ -1,4 +1,4 @@
-rootProject.name = "QRCodeGeneratorAndScanner"
+rootProject.name = "QRKit"
 
 pluginManagement {
     repositories {

@@ -1,5 +1,7 @@
 # QRKit
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+
 A small, dependency-free QR code library for Kotlin Multiplatform, plus a demo app that
 generates and scans QR codes on Android and iOS.
 
@@ -25,46 +27,116 @@ byte (UTF-8 / ECI 26) modes, and all eight mask patterns.
 | `androidApp`| Android entry point                                            |
 | `iosApp`    | iOS entry point (SwiftUI + Compose)                            |
 
-## Using the library
+## Demo architecture
 
-The library is published from this repository. In the root `settings.gradle.kts`, make sure
-`mavenCentral()` and `google()` are available, then add the dependency:
+The demo app (`shared`) is split into domain, data, and presentation layers and uses
+[Koin](https://insert-koin.io) for dependency injection. The `qrkit` library itself stays
+framework-free: it publishes plain Kotlin/Compose APIs, and the app adapts it behind a repository
+interface.
 
-```kotlin
-// JitPack (replace the tag with a release tag or commit)
-implementation("com.github.mahbubalam.QRCodeGeneratorandScanner:qrkit:1.0.0")
+```text
+shared/src/commonMain/kotlin/com/mahbub/qrcodegeneratorandscanner
+├── domain
+│   ├── model        # GeneratedQr, ScannedQr, QrMatrix, QrErrorLevel
+│   ├── repository   # QrCodeRepository abstraction
+│   └── usecase      # GenerateQrCodeUseCase
+├── data
+│   ├── mapper       # qrkit <-> domain mapping
+│   └── repository   # QrCodeRepositoryImpl delegating to qrkit
+├── presentation
+│   ├── generate     # GenerateViewModel + stateless GenerateScreen
+│   ├── scan         # ScanViewModel + stateless ScanScreen
+│   ├── components   # QR matrix renderer, shared cards
+│   └── theme
+└── di               # Koin module + initKoin()
 ```
 
-### GitHub Packages
+Dependencies point inward. `domain` has no dependency on Compose or qrkit, `data` implements the
+domain repository using qrkit, and `presentation` holds ViewModels and stateless composables.
+Koin wires the graph:
+
+| Definition | Scope |
+|---|---|
+| `QrCodeRepository` → `QrCodeRepositoryImpl` | `single` |
+| `GenerateQrCodeUseCase` | `factory` |
+| `GenerateViewModel`, `ScanViewModel` | `viewModel` |
+
+`initKoin()` is idempotent and is called from `QrKitApplication` on Android and from
+`MainViewController` on iOS. Pass extra modules to `initKoin(...)` for platform-specific bindings.
+Screens are split into a `*Route` composable that resolves its ViewModel with `koinViewModel()` and
+a stateless `*Screen` composable that only receives state and callbacks, which keeps previews and
+tests free of DI.
+
+## Using the library
+
+Published artifacts use group `com.softvinax`, artifact `qrkit`, version `1.0.0`. Every release
+publishes the Android, common metadata, and iOS variants together.
+
+### JitPack (public, no consumer token)
+
+JitPack is the simplest option for Android and JVM consumers. Add the repository in the root
+`settings.gradle.kts`:
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+Then depend on a release tag:
+
+```kotlin
+implementation("com.github.Softvinax-Ltd.QRKit:qrkit:1.0.0")
+```
+
+JitPack builds on Linux, which cannot compile Apple/Kotlin-Native targets, so JitPack serves the
+Android/JVM artifacts and common metadata but **not** the iOS klibs. For a single dependency that
+works on both Android and iOS, use GitHub Packages below or publish to Maven Central.
+
+### GitHub Packages (Android + iOS, requires a token)
 
 ```kotlin
 repositories {
     maven {
-        url = uri("https://maven.pkg.github.com/mahbubalam/QRCodeGeneratorandScanner")
+        url = uri("https://maven.pkg.github.com/Softvinax-Ltd/QRKit")
         credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
+            username = System.getenv("GITHUB_ACTOR") ?: "<github-username>"
+            password = System.getenv("GITHUB_TOKEN") ?: "<token-with-read:packages>"
         }
     }
 }
 
 dependencies {
-    implementation("com.github.mahbubalam:qrkit:1.0.0")
+    implementation("com.softvinax:qrkit:1.0.0")
 }
 ```
 
-Publish with:
+GitHub Packages requires authentication even when the repository is public; the token needs the
+`read:packages` scope.
+
+### Publishing a release
+
+1. Tag the commit in Android Studio (`Git > Tag...`, for example `1.0.0`) and push the tag, or run
+   `git tag 1.0.0 && git push origin 1.0.0`.
+2. The [publish workflow](./.github/workflows/publish.yml) runs on a macOS runner for every tag,
+   builds the Android and iOS artifacts, and publishes them to GitHub Packages. The workflow reads
+   `LIBRARY_VERSION` from the tag, so the published version always matches.
+3. For JitPack, open `https://jitpack.io/#Softvinax-Ltd/QRKit/1.0.0` once and click **Get it** to
+   trigger the first build.
+
+To publish manually from a machine with the Android SDK and Xcode:
 
 ```bash
-GITHUB_TOKEN=<token-with-packages-write> ./gradlew :qrkit:publish
+GITHUB_TOKEN=<token-with-write:packages> ./gradlew :qrkit:publish
 ```
 
-The token needs the `write:packages` scope.
-
-For JitPack, tag a release in the repository and use the JitPack coordinates shown above. The
-included [`jitpack.yml`](./jitpack.yml) selects JDK 21 and publishes only the `qrkit` module.
-JitPack needs an Android SDK that provides `compileSdk 37`; if its build image does not have it,
-publish to GitHub Packages from a machine with the Android SDK and Xcode installed instead.
+The token needs the `write:packages` scope. The included [`jitpack.yml`](./jitpack.yml) selects
+JDK 21 and publishes only the `qrkit` module. If JitPack's build image lacks `compileSdk 37`,
+publish through GitHub Actions or from a local machine instead.
 
 ### Android setup
 
@@ -184,4 +256,5 @@ dependency; the library itself has no third-party runtime dependency beyond Comp
 
 ## License
 
-[MIT](./LICENSE)
+Released under the [MIT License](./LICENSE) — free to use, modify, and redistribute, including
+for commercial projects, as long as the copyright notice is kept.
