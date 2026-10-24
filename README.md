@@ -35,7 +35,7 @@ framework-free: it publishes plain Kotlin/Compose APIs, and the app adapts it be
 interface.
 
 ```text
-shared/src/commonMain/kotlin/com/mahbub/qrcodegeneratorandscanner
+shared/src/commonMain/kotlin/ltd/softvinax/qrkit/app
 ├── domain
 │   ├── model        # GeneratedQr, ScannedQr, QrMatrix, QrErrorLevel
 │   ├── repository   # QrCodeRepository abstraction
@@ -166,7 +166,7 @@ entitlements are required. The scanner is supported on iOS 13 and later.
 ### Generate
 
 ```kotlin
-import com.mahbub.qrkit.*
+import ltd.softvinax.qrkit.*
 
 val qr = QrCodeGenerator.generate(
     data = "https://example.com",
