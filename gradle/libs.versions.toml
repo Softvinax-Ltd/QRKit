@@ -15,7 +15,6 @@ koin = "4.1.0"
 kotlin = "2.4.20"
 kotlinx-coroutines = "1.10.2"
 material3 = "1.12.0-alpha03"
-zxing = "3.5.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -41,7 +40,6 @@ compose-material3 = { module = "org.jetbrains.compose.material3:material3", vers
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
-zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
